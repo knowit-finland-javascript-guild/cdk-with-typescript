@@ -55,11 +55,11 @@ cdklocal init sample-app --language=typescript
 
 Looking at the code in `lib/app-stack.ts`, the sample app seems to only create three AWS resources:
 
-1. An SQS Queue (SQS = Simple Queue Service)
-2. An SNS Topic (SNS = Simple Notification Service)
+1. An SNS Topic (SNS = Simple Notification Service)
+2. An SQS Queue (SQS = Simple Queue Service)
 3. The SQS Queue then becomes a Subscriber to the Topic
 
-So that's Queue + Topic + Subscription = 3 resources, right?
+So that's Topic + Queue + Subscription = 3 resources, right?
 
 Almost! Additionally the Topic gets the necessary write access to the Queue. We don't see it here,
 because CDK creates the necessary resources for us behind the scenes!
@@ -190,23 +190,27 @@ This is all great, but what exactly did we actually create?
 
 ### SNS Topic
 
-> **Amazon SNS** (Simple Notification Service) allows applications to send time-critical messages to
+> **[Amazon SNS](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)** 
+> (Simple Notification Service) allows applications to send time-critical messages to
 > multiple subscribers through a “push” mechanism,
 > eliminating the need to periodically check or “poll” for updates.
 
 SNS is used for Publisher-Subscriber patterns.
 
-We can yell messages to this SNS Topic, and all services (SQS, Lambda functions, etc.) which subscribe to that Topic will be "pushed" whatever we yell.
+We can yell messages to this SNS Topic, and all services (SQS, Lambda functions, etc.) 
+which subscribe to that Topic will be "pushed" whatever we yell.
 
 ### SQS Queue
 
-> **Amazon SQS** (Simple Queue Service) is a message queue service used by distributed applications to
+> **[Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html)** 
+> (Simple Queue Service) is a message queue service used by distributed applications to
 > exchange messages through a polling model, and can be used to decouple sending and receiving
 > components—without requiring each component to be concurrently available.
 
 So it's just a message queue with some fancy features. Services can poll messages from it.
 Our Topic receives messages and pushes them to all it's subscribers, including our SQS Queue, from which preserves
-the message for us until we read it (asynchronous processing). More info about this [here](https://docs.aws.amazon.com/sns/latest/dg/sns-sqs-as-subscriber.html).
+the message for us until we read it (asynchronous processing). If you want more details, 
+[see the AWS documentation about this SNS fanout pattern](https://docs.aws.amazon.com/sns/latest/dg/sns-sqs-as-subscriber.html).
 
 Right, now let's get on with it!
 
@@ -331,9 +335,10 @@ It can be, for example underneath the existing Topic and Queue resource code.
 // previous imports ...
 
 // add these imports!
-import * as apigw from 'aws-cdk-lib/aws-apigateway';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as path from 'node:path';
+import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { join } from 'path';
 
 
 export class AppStack extends Stack {
@@ -342,13 +347,12 @@ export class AppStack extends Stack {
 
     // ... AppQueues and AppTopic resources ...
 
-    const fn = new lambda.Function(this, 'Function', {
-      runtime: lambda.Runtime.NODEJS_22_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, 'lambda-handler')),
+    const fn = new NodejsFunction(this, 'Function', {
+      entry: join(__dirname, 'lambda-handler', 'hello.ts'),
+      runtime: Runtime.NODEJS_22_X
     });
 
-    const endpoint = new apigw.LambdaRestApi(this, `ApiGwEndpoint`, {
+    const endpoint = new LambdaRestApi(this, `ApiGwEndpoint`, {
       handler: fn,
       restApiName: `HelloApi`,
     });
@@ -361,28 +365,42 @@ This creates a
 - **Lambda function** with Node runtime which is
 - integrated to an **Api Gateway Endpoint**, so we can trigger the Lambda ourselves.
 
-Lambda function code supports also TypeScript, but in this example we will use JavaScript.
+Now we just need to write the Lambda handler code.
 
-Create a new folder `/lib/lambda-handler` and create a new file named `index.js` there with the following content:
+We can use Typescript: CDK supports transpiling Typescript into Javascript out-of-the-box with the 
+possibility of customising esbuild behaviour (more info about that 
+[here](https://docs.aws.amazon.com/lambda/latest/dg/typescript-package.html)).
 
-```javascript
-exports.handler = async (event) => {
-  // Extract specific properties from the event object
+Install the requires TypeScript types with
+
+```bash
+npm install -D @types/aws-lambda
+```
+
+Create a new folder `/lib/lambda-handler` and create a new file named `hello.ts` there with the following content:
+
+```typescript
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+
   const { resource, path, httpMethod, headers, queryStringParameters, body } = event;
+
+  // Extract specific properties from the event object
   const response = {
     resource,
     path,
     httpMethod,
     headers,
     queryStringParameters,
-    body: body || 'Hello world!!!',
+    body: body ?? 'Hello world!!!',
   };
+
   return {
-    body: JSON.stringify(response, null, 2),
     statusCode: 200,
+    body: JSON.stringify(response, null, 2),
   };
 };
-
 ```
 
 Let's Redeploy
@@ -412,6 +430,7 @@ Curl the endpoint URL!
 
 ```bash
 curl https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
+# Response
 {
   "resource": "/",
   "path": "/",
@@ -425,7 +444,8 @@ Api Gateway doesn't mind it if you use POST requests instead of GETs:
 
 ```bash
 curl --header "Content-Type: application/json" --request POST \
---data '{"foo":"bar"}' https://4t2rxyr1jo.execute-api.localhost.localstack.cloud:4566/prod/
+--data '{"foo":"bar"}' https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
+# Response
 {
   "resource": "/",
   "path": "/",
@@ -767,7 +787,7 @@ npm run aws-dynamodb-scan-table-items
 
 Well done!
 
-## EXERCISE 12: Dev and Prod Stages
+## Exercise 12: Dev and Prod Stages
 
 The [CDK Stage](https://docs.aws.amazon.com/cdk/v2/guide/stages.html) represents a group of one or more CDK stacks
 that are configured to deploy together. Use stages to deploy the same grouping of stacks to multiple environments,
@@ -778,7 +798,8 @@ Let's pretend that AppStack is only used in Dev, and Prod has no need for it. Th
 
 Do the following
 
-1. Destroy both currently deployed Stacks with `cdklocal destroy --all --force`
+1. Destroy both currently deployed Stacks with  
+   `cdklocal destroy --all --force`
 2. Create the class DevStage (that extends cdk.Stage) into a new file: `lib/stages/DevStage.ts`
 3. Create the class ProdStage (that extends cdk.Stage) into a new file: `lib/stages/ProdStage.ts`
 4. In the DevStage constructor,
