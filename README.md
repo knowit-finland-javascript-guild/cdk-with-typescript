@@ -793,18 +793,18 @@ The [CDK Stage](https://docs.aws.amazon.com/cdk/v2/guide/stages.html) represents
 that are configured to deploy together. Use stages to deploy the same grouping of stacks to multiple environments,
 such as development, testing, and production.
 
-Let's pretend that AppStack is only used in Dev, and Prod has no need for it. This would be a good place to introduce
-`DevStage` and `ProdStage`!
+Let's pretend that `AppStack` is only used in Dev -- Prod has no need for it. This would be a good case for 
+introducing two separate Stages: `DevStage` and `ProdStage`!
 
 Do the following
 
 1. Destroy both currently deployed Stacks with  
-   `cdklocal destroy --all --force`
-2. Create the class DevStage (that extends cdk.Stage) into a new file: `lib/stages/DevStage.ts`
-3. Create the class ProdStage (that extends cdk.Stage) into a new file: `lib/stages/ProdStage.ts`
+   `cdklocal destroy "Dev/*" "Prod/*" --force`
+2. Create the class `DevStage` (that extends cdk.Stage) into a new file: `lib/stages/dev-stage.ts`
+3. Create the class `ProdStage` (that extends cdk.Stage) into a new file: `lib/stages/prod-stage.ts`
 4. In the DevStage constructor,
   - create AppStack with the same logical id `AppStack`
-  - cerate ItemsApiStack with the logical id `ItemsApiStack`
+  - create ItemsApiStack with the logical id `ItemsApiStack`
 5. In the ProdStage constructor,
 - ItemsApiStack with the logical id `ItemsApiStack`
 
@@ -814,25 +814,31 @@ Replace the contents of `bin/app.ts` with the following code:
 ```typescript
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { DevStage } from '../lib/stages/DevStage';
-import { ProdStage } from '../lib/stages/ProdStage';
+import { DevStage } from '../lib/stages/dev-stage';
+import { ProdStage } from '../lib/stages/prod-stage';
+
+// Constants
+const LOCALSTACK_DEFAULT_ACCOUNTID = '000000000000';
+const DEV_REGION = 'eu-north-1';  // Stockholm region
+const PROD_REGION = 'eu-west-3';  // Paris region
 
 const app = new cdk.App();
 
 new DevStage(app, 'Dev', {
   env: {
-    account: "000000000000",
-    region: "eu-north-1" // Stockholm region
+    account: LOCALSTACK_DEFAULT_ACCOUNTID,
+    region: DEV_REGION
   }
 })
 
 new ProdStage(app, 'Prod', {
   env: {
+
     // Normally, prod account would be different from dev account
     // However, localStack makes cross-account work difficult for us
-    account: "000000000000",
-    // Instead, let's change the region! À Paris, bien sûr!
-    region: "eu-west-3" // Paris region
+    account: LOCALSTACK_DEFAULT_ACCOUNTID,
+
+    region: PROD_REGION  // Instead, let's change the region!
   }
 });
 ```
@@ -847,20 +853,88 @@ Deploy all stacks for both Dev and Prod Stages.
 
 ```bash
 cdklocal deploy --require-approval=never "Dev/*" "Prod/*"
-# "Stage/*" here means just AppStack, though, so this would be equivalent and more explicit:
+# "Stage/*" here means just all stacks in stage, so this could also be written as
 # cdklocal deploy --require-approval=never "Dev/AppStack" "Dev/ItemsApiStack" "Prod/ItemsApiStack"
 ```
 
-Verify that both Dev and Prod environments work by calling each of their ItemsApi POST and GET(-by-id) lambdas.
+Verify that both Dev and Prod environments work by CURL:ing each of their ItemsApi POST and GET(-by-id) lambdas.
 
-To access Prod by AWS CLI use the `--endpoint-url` and `--region` flags
+To access Prod region by AWS CLI use the `--endpoint-url` and `--region` flags
 
 ```bash
 # For example, to scan Prod dynamodb table "items"
 aws --endpoint-url=http://localhost:4566 --region=eu-west-3 dynamodb scan --table-name items
 ```
 
-## Bonus exercise: Add more endpoints to ItemsApi
+You've now completed all the exercises of this workshop! Well done!
+
+
+## Bonus exercise 1: Write tests for the ItemsApi Construct
+
+It is easier to write the tests when you have access to the final CloudFormation template of a Stack.
+
+Now with multiple Stages and Stacks, when we want view a template, we have two options:
+
+- Run `cdklocal synth Stage/Stack` to view it for a particular single Stack. 
+-  Alternatively, after a successful deploy or `cdklocal synth`, look into the `cdk.out` directory. You should be able to 
+  see a directory for each Stage:
+    - `cdk.out/assembly-Dev` holds separate template files for `Dev/AppStack` and `Dev/ItemsApiStack`
+    - `cdk.out/assembly-Prod` holds the template file `Prod/ItemsApiStack`
+
+Now we have enough information for writing tests for the ItemsApi construct!
+
+Create the file `test/item-api.test.ts`
+
+As a starting point, put the following content into it:
+
+```typescript
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { ItemsApi } from '../lib/constructs/items-api/items-api';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+
+test('ItemsApi Construct Test', () => {
+  // WHEN
+  const stack = new cdk.Stack();
+  new ItemsApi(stack, 'MyTestItemaApi', {});
+
+  // THEN
+
+  // CDK Synthesized into a CloudFormation Template
+  const template = Template.fromStack(stack);
+  
+  template.resourceCountIs('AWS::Lambda::Function', 2);
+  
+
+});
+
+```
+
+Write test cases for the following:
+
+- Amount of `AWS::Lambda::Function` resources is 2
+- There is a Lambda function resource with property `Runtime: 'nodejs22.x'`
+- Amount of `AWS::ApiGateway::RestApi` resources is 1
+- Amount of `AWS::ApiGateway::Deployment` resources is 1
+- Amount of `AWS::ApiGateway::Resource` resources is 2
+    - There exists a `AWS::ApiGateway::Resource` with property `PathPart: 'items'`
+    - There exists a `AWS::ApiGateway::Resource` with property `PathPart: '{id}'`
+- Amount of `AWS::ApiGateway::Method` resources is 2
+    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'GET'`
+    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'POST'`
+- Amount of `AWS::DynamoDB::Table` resources is 1
+    - Also write at least one test which validates something about the table schema. It could be, for example: 
+        - TableName is `items`
+        - attribute 'itemId' is a string type (`AttributeType: 'S'`) )
+        - attribute with name 'itemId' is the partitionKey: (`KeySchema: [{ AttributeName: 'itemId', KeyType: 'HASH' }]`)
+        - table can be deleted using IaC, check properties `DeletionPolicy` and `UpdateReplacePolicy`
+
+Run tests and see that they pass.
+
+Well done on completing this bonus exercise!
+
+
+## Bonus exercise 2: Add more endpoints to ItemsApi
 
 This part is optional.
 
@@ -869,7 +943,15 @@ Add whichever endpoints you want to ItemsApi! Some reasonable candidates might b
 - Delete by Id
 - Get all items
 
-This means you may have to look at the DynamoDB SDK for Typescript.
+You will find plenty of examples of DynamoDB library calls in AWS Developer Guide, for example in
+["Actions"](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/service_code_examples_actions.html).
+
+>**Sidenote:**  
+> It can be confusing that we are using both the [DynamoDBDocument library](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-lib-dynamodb/Class/DynamoDBDocument/)
+and [DynamoDBClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/). 
+DynamoDBDocument simply does some mapping so that we can work with regular JS objects instead of the horrible DynamoDB format.
+
+Well done on completing this bonus exercise!
 
 # After the exercises
 
