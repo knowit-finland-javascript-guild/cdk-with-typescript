@@ -371,7 +371,7 @@ We can use Typescript: CDK supports transpiling Typescript into Javascript out-o
 possibility of customising esbuild behaviour (more info about that 
 [here](https://docs.aws.amazon.com/lambda/latest/dg/typescript-package.html)).
 
-Install the requires TypeScript types with
+Install the required TypeScript types with
 
 ```bash
 npm install -D @types/aws-lambda
