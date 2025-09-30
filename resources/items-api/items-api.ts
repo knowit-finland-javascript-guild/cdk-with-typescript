@@ -13,7 +13,7 @@ import {
  * EXAMPLE FROM
  * https://github.com/aws-samples/aws-cdk-examples/blob/main/typescript/api-cors-lambda-crud-dynamodb/index.ts
  */
-export class ItemApi extends Construct {
+export class ItemsApi extends Construct {
   constructor(scope: Construct, id: string, props: any) {
     super(scope, id);
     const dynamoTable = new Table(this, 'items', {
