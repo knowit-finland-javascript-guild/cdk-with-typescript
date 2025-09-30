@@ -5,7 +5,8 @@
 > NOTE: You do not need to create any accounts for LocalStack or AWS
 > no matter what they say on the website!
 
-1. Docker installation
+0. Some terminal (shell/bash/zsh/etc.). `Git Bash` is recommended for Windows.
+2. Docker installation
 2. npm
 3. AWS CDK CLI for LocalStack: https://docs.localstack.cloud/aws/integrations/aws-native-tools/aws-cdk/
     * `npm install -g aws-cdk-local aws-cdk`
@@ -225,7 +226,7 @@ Then Send a message to the topic:
 ```bash
 # Execute as a single command
 aws --endpoint-url=http://localhost:4566 --region=eu-north-1 \
-    sns publish --topic-arn='TOPIC_ARN' --message 'HELLO WORLD'
+    sns publish --topic-arn='<TOPIC_ARN>' --message 'HELLO WORLD'
 ```
 
 Next, list your sqs queues, Copy the QueueUrl:
@@ -239,7 +240,7 @@ Then read the message from the Queue.
 ```bash
 # Execute as a single command
 aws --endpoint-url=http://localhost:4566 --region=eu-north-1 \
-    sqs receive-message --queue-url='QUEUE_URL'
+    sqs receive-message --queue-url='<QUEUE_URL>'
 ```
 
 You should see a json formatted message. Somewhere in the body you can read `Message: "HELLO WORLD"`.
@@ -262,7 +263,7 @@ It also checks that exactly one `AWS::SNS::Topic` resource has been made.
 
 Run tests with
 ```bash
-npm run test
+npm test
 ```
 
 ## Exercise 4: Modify AppStack
@@ -410,13 +411,6 @@ Let's Redeploy
 npm run cdklocal-redeploy
 ```
 
-Check that the Lambda was created.
-
-```bash
-npm run aws-lambda-list-functions
-npm run aws-apigateway-get-rest-apis 
-```
-
 CDK gives an API GW endpoint URL as an Output.
 This endpoint calls the lambda function and returns its result.
 
@@ -426,7 +420,16 @@ Outputs:
 AppStack.ApiGwEndpoint77F417B1 = https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
 ```
 
-Curl the endpoint URL!
+Copy this endpoint URL somewhere so we can send requests to it later.
+
+Next, verify that the Lambda and the ApiGateway RestApi was created.
+
+```bash
+npm run aws-lambda-list-functions
+npm run aws-apigateway-get-rest-apis 
+```
+
+Send a HTTP GET request to the endpoint URL using for example `curl`!
 
 ```bash
 curl https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
@@ -489,8 +492,6 @@ mkdir lib/constructs ;
 mkdir lib/stacks ;
 mkdir lib/stages ;
 ```
-
-Move the file `app-stack.ts` into `lib/stacks`. Don't forget to fix imports from wherever AppStack is called!
 
 Now onwards!
 
@@ -573,6 +574,14 @@ export class AppStack extends Stack {
   }
 }
 
+```
+
+Finally, move the file `app-stack.ts` into `lib/stacks`. Don't forget to fix imports from wherever AppStack is called!
+
+Run tests and see that they pass
+
+```bash
+npm test
 ```
 
 Redeploy and make sure that the Lambda still answers your curl with a perky "Hello world".
@@ -778,7 +787,7 @@ curl -v --header "Content-Type: application/json" \
 curl -v https://<ApiGWId>.execute-api.localhost.localstack.cloud:4566/prod/items/<itemId>
 
 # "invalid request, you are missing the parameter body" (400)
-curl --header "Content-Type: application/json" \                   
+curl --header "Content-Type: application/json" \
   --request POST  https://<ApiGWId>.execute-api.localhost.localstack.cloud:4566/prod/items
   
 # Test dynamoDB has items:
