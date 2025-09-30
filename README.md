@@ -6,7 +6,7 @@
 > no matter what they say on the website!
 
 0. Some terminal (shell/bash/zsh/etc.). `Git Bash` is recommended for Windows.
-2. Docker installation
+1. Docker installation
 2. npm
 3. AWS CDK CLI for LocalStack: https://docs.localstack.cloud/aws/integrations/aws-native-tools/aws-cdk/
     * `npm install -g aws-cdk-local aws-cdk`
@@ -290,10 +290,18 @@ Well done!
 
 Well, we cannot really "update" AppStack...
 
-If we would be working against a real AWS environment, we could simple deploy the sample AppStack again,
+If we would be working against a real AWS environment,
+we could simply check the diff and deploy the sample AppStack again,
 and everything should work fine.
 
 Unfortunately for us, LocalStack really sucks at updating existing stacks.
+
+For the sake of the exercise let's still check the diff with:
+```bash
+cdklocal diff
+```
+
+You can see what new resources would be created with the new deployment.
 
 With LocalStack, the only way forward is to destroy and redeploy our Stack,
 or the entire App, as we are about to do here!

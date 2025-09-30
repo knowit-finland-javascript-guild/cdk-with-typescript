@@ -50,8 +50,8 @@ export class ItemsApi extends Construct {
     });
 
     // Grant the Lambda function read access to the DynamoDB table
-    dynamoTable.grantReadWriteData(createOneLambda);
-    dynamoTable.grantReadWriteData(getOneLambda);
+    dynamoTable.grantWriteData(createOneLambda);
+    dynamoTable.grantReadData(getOneLambda);
 
     // Integrate the Lambda functions with the API Gateway resource
     const createOneIntegration = new LambdaIntegration(createOneLambda);
