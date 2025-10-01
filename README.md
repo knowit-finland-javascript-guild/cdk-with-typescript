@@ -815,8 +815,8 @@ introducing two separate Stages: `DevStage` and `ProdStage`!
 
 Do the following
 
-1. Destroy both currently deployed Stacks with  
-   `cdklocal destroy "Dev/*" "Prod/*" --force`
+1. Destroy currently deployed Stacks with
+   `cdklocal destroy --force`
 2. Create the class `DevStage` (that extends cdk.Stage) into a new file: `lib/stages/dev-stage.ts`
 3. Create the class `ProdStage` (that extends cdk.Stage) into a new file: `lib/stages/prod-stage.ts`
 4. In the DevStage constructor,
@@ -863,7 +863,7 @@ new ProdStage(app, 'Prod', {
 Bootstrap the account again. Both regions will be bootstrapped separately!
 
 ```bash
-cdk bootstrap
+cdklocal bootstrap
 ```
 
 Deploy all stacks for both Dev and Prod Stages.
