@@ -815,8 +815,8 @@ introducing two separate Stages: `DevStage` and `ProdStage`!
 
 Do the following
 
-1. Destroy currently deployed Stacks with
-   `cdklocal destroy --force`
+1. Destroy currently deployed Stacks with  
+   `cdklocal destroy --all --force`
 2. Create the class `DevStage` (that extends cdk.Stage) into a new file: `lib/stages/dev-stage.ts`
 3. Create the class `ProdStage` (that extends cdk.Stage) into a new file: `lib/stages/prod-stage.ts`
 4. In the DevStage constructor,
@@ -972,6 +972,31 @@ Well done on completing this bonus exercise!
 
 # After the exercises
 
+### (Optional) Destroy resources with CDK
+
+If you did exercise 12 (Stages), destroy all Stacks in all Stages:
+
+```bash
+cdklocal destroy "*/*" --force
+```
+
+Else, it should be enough to run the following:
+
+```bash
+cdklocal destroy --all --force
+```
+
+### Terminate LocalStack
+
+Press `CTRL+C` in the terminal running LocalStack.
+
+Alternatively, you can run `docker-compose down` in the root of the repo.
+
 ### Clean up global npm installations
 
 `npm uninstall -g aws-cdk-local aws-cdk`
+
+### Removing AWS CLI
+
+If you want to remove AWS CLI, here is a link to the uninstallation guide:  
+https://docs.aws.amazon.com/cli/latest/userguide/uninstall.html
