@@ -52,6 +52,14 @@ Create an empty `app` directory, navigate to it, and run the following command
 cdklocal init sample-app --language=typescript
 ```
 
+This command also turns the `app` directory into a git repository.
+
+In general, when working with Infrastructure-as-Code (IaC), 
+it is a good idea to track changes with git (e.g. commit after successful deploy)
+
+For this workshop, we recommend you create a new commit after each exercise, 
+but it's also OK to play with danger, if that's more your style!
+
 ## Excercise 0.5: Exploring the Sample App
 
 Looking at the code in `lib/app-stack.ts`, the sample app seems to only create three AWS resources:
@@ -139,6 +147,8 @@ cdklocal bootstrap
 > This command receives AWS account id and region from the parameters of `AppStack`  
 > The command could be done from any directory by specifying the parameters explicitly:  
 > `cdklocal bootstrap 000000000000/eu-north-1`
+
+Don't forget to `git add . && git commit` after each exercise!
 
 ## Exercise 2: First Deploy
 
@@ -245,7 +255,9 @@ aws --endpoint-url=http://localhost:4566 --region=eu-north-1 \
 
 You should see a json formatted message. Somewhere in the body you can read `Message: "HELLO WORLD"`.
 
-Well done!
+Well done! 
+
+Don't forget to `git add . && git commit` after each exercise. We'll stop reminding from now this point on.
 
 ## Exercise 3: Run tests
 
