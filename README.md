@@ -902,6 +902,8 @@ You've now completed all the exercises of this workshop! Well done!
 
 ## Bonus exercise 1: Write tests for the ItemsApi Construct
 
+This part is optional.
+
 It is easier to write the tests when you have access to the final CloudFormation template of a Stack.
 
 Now with multiple Stages and Stacks, when we want view a template, we have two options:
