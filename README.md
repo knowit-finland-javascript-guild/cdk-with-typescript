@@ -291,12 +291,12 @@ Let's modify the resources of `lib/app-stack.ts` a bit.
   - Set the `visibilityTimeout` parameter to `30` seconds
 3. Add `AppQueue2` as the second subscriber to `AppTopic`
 4. Run the tests and confirm that they fail.
-5. Fix the tests.
-  - Check that there are two `AWS::SQS::Queue` resources
-    - Check that there is at least Queue with property `VisibilityTimeout: 100`
-    - Check that there is at least Queue with property `VisibilityTimeout: 30`
-6. Add a new check that there are `2` resources of type `AWS::SNS::Subscription`
-7. Run the tests and confirm that they pass
+5. Fix the tests by adding the following:
+    - Check that there are two `AWS::SQS::Queue` resources
+        - Check that there is at least Queue with property `VisibilityTimeout: 100`
+        - Check that there is at least Queue with property `VisibilityTimeout: 30`
+    - Add a new check that there are `2` resources of type `AWS::SNS::Subscription`
+6. Run the tests and confirm that they pass
 
 Well done!
 
