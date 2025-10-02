@@ -575,7 +575,7 @@ export class HelloService extends Construct {
 
 Move the code that defines the HelloService and API Gateway Constructs into the constructor.
 
-Move the lambda handler code into `lib/constructs/hello-service/lambda-handler/index.js`
+Move the lambda handler code into `lib/constructs/hello-service/lambda-handler/hello.ts`
 
 Instantiate `HelloService` in `AppStack` with the Logical ID `HelloService`.
 
