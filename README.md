@@ -158,6 +158,8 @@ Deploy the sample app:
 cdklocal deploy
 ```
 
+You will be asked to confirm ("y") that the SNS Topic gets rights to write to the SQS Queue.
+
 Once the deployment is done,
 we can inspect the created resources using AWS CLI.
 
