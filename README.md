@@ -52,7 +52,24 @@ Create an empty `app` directory, navigate to it, and run the following command
 cdklocal init sample-app --language=typescript
 ```
 
-This command also turns the `app` directory into a git repository.
+### Typescript must be compiled to JavaScript
+
+Immediately open a new terminal window and run
+
+```bash
+npm run watch
+```
+
+Now whenever you change a `.ts` file, it will be automatically compiled into a `.js` file in the background!
+
+Although this compilation is performed automatically whenever you run CDK commands,  
+if you don't remember to compile your code you may run into issues when editing the CDK code and running tests. 
+
+Leave this terminal running until the end of the workshop.
+
+### GitOps
+
+Also notice that the `cdklocal init` command also turned the `app` directory into a git repository.
 
 In general, when working with Infrastructure-as-Code (IaC), 
 it is a good idea to track changes with git (e.g. commit after successful deploy)
@@ -952,9 +969,10 @@ Write test cases for the following:
 - Amount of `AWS::ApiGateway::Resource` resources is 2
     - There exists a `AWS::ApiGateway::Resource` with property `PathPart: 'items'`
     - There exists a `AWS::ApiGateway::Resource` with property `PathPart: '{id}'`
-- Amount of `AWS::ApiGateway::Method` resources is 2
-    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'GET'`
-    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'POST'`
+- Amount of `AWS::ApiGateway::Method` resources is 4
+    - Also check our that our main methods exist
+        - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'GET'`
+        - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'POST'`
 - Amount of `AWS::DynamoDB::Table` resources is 1
     - Also write at least one test which validates something about the table schema. It could be, for example: 
         - TableName is `items`
@@ -1001,6 +1019,10 @@ Else, it should be enough to run the following:
 ```bash
 cdklocal destroy --all --force
 ```
+
+### Stop the npm run watch process
+
+Press `CTRL+C` in the terminal that runs `npm run watch`.
 
 ### Terminate LocalStack
 
