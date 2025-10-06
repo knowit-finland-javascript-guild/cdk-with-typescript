@@ -52,6 +52,31 @@ Create an empty `app` directory, navigate to it, and run the following command
 cdklocal init sample-app --language=typescript
 ```
 
+### Typescript must be compiled to JavaScript
+
+Immediately open a new terminal window and run
+
+```bash
+npm run watch
+```
+
+Now whenever you change a `.ts` file, it will be automatically compiled into a `.js` file in the background!
+
+Although this compilation is performed automatically whenever you run CDK commands,  
+if you don't remember to compile your code you may run into issues when editing the CDK code and running tests. 
+
+Leave this terminal running until the end of the workshop.
+
+### GitOps
+
+Also notice that the `cdklocal init` command also turned the `app` directory into a git repository.
+
+In general, when working with Infrastructure-as-Code (IaC), 
+it is a good idea to track changes with git (e.g. commit after successful deploy)
+
+For this workshop, we recommend you create a new commit after each exercise, 
+but it's also OK to play with danger, if that's more your style!
+
 ## Excercise 0.5: Exploring the Sample App
 
 Looking at the code in `lib/app-stack.ts`, the sample app seems to only create three AWS resources:
@@ -140,6 +165,8 @@ cdklocal bootstrap
 > The command could be done from any directory by specifying the parameters explicitly:  
 > `cdklocal bootstrap 000000000000/eu-north-1`
 
+Don't forget to `git add . && git commit` after each exercise!
+
 ## Exercise 2: First Deploy
 
 Deploy the sample app:
@@ -147,6 +174,8 @@ Deploy the sample app:
 ```bash
 cdklocal deploy
 ```
+
+You will be asked to confirm ("y") that the SNS Topic gets rights to write to the SQS Queue.
 
 Once the deployment is done,
 we can inspect the created resources using AWS CLI.
@@ -245,7 +274,9 @@ aws --endpoint-url=http://localhost:4566 --region=eu-north-1 \
 
 You should see a json formatted message. Somewhere in the body you can read `Message: "HELLO WORLD"`.
 
-Well done!
+Well done! 
+
+Don't forget to `git add . && git commit` after each exercise. We'll stop reminding from now this point on.
 
 ## Exercise 3: Run tests
 
@@ -277,12 +308,12 @@ Let's modify the resources of `lib/app-stack.ts` a bit.
   - Set the `visibilityTimeout` parameter to `30` seconds
 3. Add `AppQueue2` as the second subscriber to `AppTopic`
 4. Run the tests and confirm that they fail.
-5. Fix the tests.
-  - Check that there are two `AWS::SQS::Queue` resources
-    - Check that there is at least Queue with property `VisibilityTimeout: 100`
-    - Check that there is at least Queue with property `VisibilityTimeout: 30`
-6. Add a new check that there are `2` resources of type `AWS::SNS::Subscription`
-7. Run the tests and confirm that they pass
+5. Fix the tests by adding the following:
+    - Check that there are two `AWS::SQS::Queue` resources
+        - Check that there is at least Queue with property `VisibilityTimeout: 100`
+        - Check that there is at least Queue with property `VisibilityTimeout: 30`
+    - Add a new check that there are `2` resources of type `AWS::SNS::Subscription`
+6. Run the tests and confirm that they pass
 
 Well done!
 
@@ -589,7 +620,7 @@ export class HelloService extends Construct {
 
 Move the code that defines the HelloService and API Gateway Constructs into the constructor.
 
-Move the lambda handler code into `lib/constructs/hello-service/lambda-handler/index.js`
+Move the lambda handler code into `lib/constructs/hello-service/lambda-handler/hello.ts`
 
 Instantiate `HelloService` in `AppStack` with the Logical ID `HelloService`.
 
@@ -919,6 +950,8 @@ You've now completed all the exercises of this workshop! Well done!
 
 ## Bonus exercise 1: Write tests for the ItemsApi Construct
 
+This part is optional.
+
 It is easier to write the tests when you have access to the final CloudFormation template of a Stack.
 
 Now with multiple Stages and Stacks, when we want view a template, we have two options:
@@ -967,9 +1000,10 @@ Write test cases for the following:
 - Amount of `AWS::ApiGateway::Resource` resources is 2
     - There exists a `AWS::ApiGateway::Resource` with property `PathPart: 'items'`
     - There exists a `AWS::ApiGateway::Resource` with property `PathPart: '{id}'`
-- Amount of `AWS::ApiGateway::Method` resources is 2
-    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'GET'`
-    - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'POST'`
+- Amount of `AWS::ApiGateway::Method` resources is 4
+    - Also check our that our main methods exist
+        - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'GET'`
+        - There exists a `AWS::ApiGateway::Method` with property `HttpMethod: 'POST'`
 - Amount of `AWS::DynamoDB::Table` resources is 1
     - Also write at least one test which validates something about the table schema. It could be, for example: 
         - TableName is `items`
@@ -1016,6 +1050,10 @@ Else, it should be enough to run the following:
 ```bash
 cdklocal destroy --all --force
 ```
+
+### Stop the npm run watch process
+
+Press `CTRL+C` in the terminal that runs `npm run watch`.
 
 ### Terminate LocalStack
 
