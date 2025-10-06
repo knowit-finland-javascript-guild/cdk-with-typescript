@@ -391,25 +391,75 @@ Create a new folder `/lib/lambda-handler` and create a new file named `hello.ts`
 ```typescript
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
+// A domain specific type
+type Person = {
+    firstName: string;
+    lastName: string;
+    age: number;
+}
+
+// An union type to describe possible values
+type LambdaMethod = "startsWithA" | "fullName";
+
+// A type to describe the expected shape of the request body
+type RequestBody = {
+    method: LambdaMethod;
+}
+
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const genericError = "Something went wrong, try again later";
 
-  const { resource, path, httpMethod, headers, queryStringParameters, body } = event;
+    // Type cannot be used as a value
+    // Create a separate array consisting of values of the type
+    const lambdaMethods: LambdaMethod[] = ["startsWithA", "fullName"];
 
-  // Extract specific properties from the event object
-  const response = {
-    resource,
-    path,
-    httpMethod,
-    headers,
-    queryStringParameters,
-    body: body ?? 'Hello world!!!',
-  };
+    const people: Person[] = [
+        {
+            firstName: "Anni",
+            lastName: "Esimerkki",
+            age: 65,
+        },
+        {
+            firstName: "John",
+            lastName: "Doe",
+            age: 42,
+        },
+        {
+            firstName: "An",
+            lastName: "Example",
+            age: 627,
+        },
+    ];
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(response, null, 2),
-  };
+    // Property destructuring
+    const { body } = event;
+
+    // Get the request body as an object
+    const requestBody = typeof body == 'object' ? body : JSON.parse(body);
+
+    // If body is missing, throw an error
+    if (!requestBody) throw new Error(genericError);
+
+    // If body does not match out spec, throw an error
+    if (!requestBody.method || !lambdaMethods.includes(requestBody.method)) throw new Error(genericError);
+
+    // Since we have validated the input, we can cast it to a real type
+    const validatedBody = requestBody as RequestBody
+
+    // Filter people whose first name starts with a
+    const nameStartsWithA = people.filter((person) => person.firstName.toLowerCase().startsWith("a"));
+
+    // Create a full name for each person
+    const fullNames = people.map((person) => `${person.firstName} ${person.lastName}`);
+
+    const response = validatedBody.method === "startsWithA" ? nameStartsWithA : fullNames
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify(response),
+    };
 };
+
 ```
 
 Let's Redeploy
@@ -430,43 +480,21 @@ AppStack.ApiGwEndpoint77F417B1 = https://r72pyu2yff.execute-api.localhost.locals
 
 Copy this endpoint URL somewhere so we can send requests to it later.
 
-Next, verify that the Lambda and the ApiGateway RestApi was created.
+Next, verify that the Lambda and the ApiGateway RestApi were created.
 
 ```bash
 npm run aws-lambda-list-functions
 npm run aws-apigateway-get-rest-apis 
 ```
 
-Send a HTTP GET request to the endpoint URL using for example `curl`!
-
-```bash
-curl https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
-# Response
-{
-  "resource": "/",
-  "path": "/",
-  "httpMethod": "GET",
-  ...
-  "body": "Hello world!!!"
-}
-```
-
-Api Gateway doesn't mind it if you use POST requests instead of GETs:
+Send a HTTP POST request to the endpoint and check the response:
 
 ```bash
 curl --header "Content-Type: application/json" --request POST \
---data '{"foo":"bar"}' https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
-# Response
-{
-  "resource": "/",
-  "path": "/",
-  "httpMethod": "POST",
-  ...
-  "body": "{\"foo\":\"bar\"}"
-} 
+--data '{"method":"fullName"}' https://r72pyu2yff.execute-api.localhost.localstack.cloud:4566/prod/
 ```
 
-The original JSON body is returned instead of Hello world.
+Check the valid values for the `method` from the code and experiment.
 
 Well done!
 
