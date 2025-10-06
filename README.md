@@ -755,7 +755,7 @@ Run the tests and see that they pass.
 
 Well done!
 
-### Exercise 10: Deploy ItemsApi
+## Exercise 10: Deploy ItemsApi
 
 At the root of this repository, you will find the `./resources` directory.
 
