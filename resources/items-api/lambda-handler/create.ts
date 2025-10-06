@@ -45,7 +45,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   try {
     await db.send(command);
-    return { statusCode: 201, body: `${PRIMARY_KEY}: ${item[PRIMARY_KEY]}` };
+    return { statusCode: 201, body: `${PRIMARY_KEY}: ${uuid}` };
   } catch (dbError: any) {
     const errorResponse = dbError.code === 'ValidationException' && dbError.message.includes('reserved keyword') ?
       RESERVED_RESPONSE : DYNAMODB_EXECUTION_ERROR;

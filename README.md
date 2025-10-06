@@ -818,7 +818,7 @@ in the following test requests.
 # 201 and returns itemId (UUID) --> note URL ends with /items
 curl -v --header "Content-Type: application/json" \
   --request POST \
-  --data '{"itemId":"helloWorld"}' https://<ApiGWId>.execute-api.localhost.localstack.cloud:4566/prod/items 
+  --data '{"name":"itemName", "description":"itemDesc", "value":51}' https://<ApiGWId>.execute-api.localhost.localstack.cloud:4566/prod/items
   
 # copy the returned itemId (UUID) from the final line of the output, (e.g. fc7eeadb-a984-4262-8e59-26933ad98568)
   
