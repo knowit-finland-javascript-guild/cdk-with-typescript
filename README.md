@@ -633,7 +633,13 @@ Run tests and see that they pass
 npm test
 ```
 
-Redeploy and make sure that the Lambda still answers your curl with a perky "Hello world".
+Deploy the App again with
+
+```bash
+cdklocal deploy --require-approval never
+```
+
+Make sure that the Lambda still answers your curl command.
 
 Well done!
 
@@ -671,12 +677,25 @@ export class AppStack extends Stack {
 }
 ```
 
+Run tests and see that they still pass
+
+```bash
+npm test
+```
+
 Deploy the App again with
 
 ```bash
 cdklocal deploy --require-approval never
 ```
 
+Check that we still have two SQS queues
+
+```bash
+npm run aws-sqs-list-queues
+```
+
+Well done!
 
 ## Exercise 9: Write tests for HelloService
 
