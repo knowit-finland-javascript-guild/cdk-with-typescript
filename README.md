@@ -574,8 +574,8 @@ So it is always wise to destroy our resources now, before doing something that a
 cdklocal destroy --force
 ```
 
-BTW, changes in Logical IDs are precisely the kind of thing why you would want to always make a `git commit` after a
-successful deployment! Cloud people call it `GitOps`, we developers just call it `git`.
+BTW, changes in Logical IDs are precisely the kind of thing why you would want to follow `GitOps` practices. 
+Always make a `git commit` after a successful deployment.
 
 > **NOTE:**  
 > If your infrastructure gets too stuck, and you can't destroy it with CDK anymore, simply terminate LocalStack  
