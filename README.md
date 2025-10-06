@@ -77,7 +77,7 @@ it is a good idea to track changes with git (e.g. commit after successful deploy
 For this workshop, we recommend you create a new commit after each exercise, 
 but it's also OK to play with danger, if that's more your style!
 
-## Excercise 0.5: Exploring the Sample App
+## Exercise 0.5: Exploring the Sample App
 
 Looking at the code in `lib/app-stack.ts`, the sample app seems to only create three AWS resources:
 
@@ -218,29 +218,12 @@ npm run aws-sns-list-topics
 
 This is all great, but what exactly did we actually create?
 
-### SNS Topic
-
-> **[Amazon SNS](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)** 
-> (Simple Notification Service) allows applications to send time-critical messages to
-> multiple subscribers through a “push” mechanism,
-> eliminating the need to periodically check or “poll” for updates.
-
-SNS is used for Publisher-Subscriber patterns.
-
-We can yell messages to this SNS Topic, and all services (SQS, Lambda functions, etc.) 
-which subscribe to that Topic will be "pushed" whatever we yell.
-
-### SQS Queue
-
-> **[Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html)** 
-> (Simple Queue Service) is a message queue service used by distributed applications to
-> exchange messages through a polling model, and can be used to decouple sending and receiving
-> components—without requiring each component to be concurrently available.
-
-So it's just a message queue with some fancy features. Services can poll messages from it.
-Our Topic receives messages and pushes them to all it's subscribers, including our SQS Queue, from which preserves
-the message for us until we read it (asynchronous processing). If you want more details, 
-[see the AWS documentation about this SNS fanout pattern](https://docs.aws.amazon.com/sns/latest/dg/sns-sqs-as-subscriber.html).
+- [Amazon SNS](https://docs.aws.amazon.com/sns/latest/dg/welcome.html) is used for Publisher-Subscriber patterns. 
+- [Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html) a message queue with some fancy features, services poll messages from it. 
+- Our Topic receives messages and pushes them to all it's subscribers, including our SQS Queue, from which preserves
+the message for us until we read it (asynchronous processing). 
+- If you want to know more, 
+  [see the AWS documentation about this SNS fanout pattern](https://docs.aws.amazon.com/sns/latest/dg/sns-sqs-as-subscriber.html).
 
 Right, now let's get on with it!
 
