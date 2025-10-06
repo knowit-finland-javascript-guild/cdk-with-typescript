@@ -7,18 +7,18 @@ import { join } from 'path';
 import {
   LambdaIntegration, RestApi, MockIntegration, IResource, PassthroughBehavior
 } from 'aws-cdk-lib/aws-apigateway';
-
+import { tablePrimaryKey } from "./constants";
 
 /**
- * EXAMPLE FROM
+ * Modified example from
  * https://github.com/aws-samples/aws-cdk-examples/blob/main/typescript/api-cors-lambda-crud-dynamodb/index.ts
  */
 export class ItemsApi extends Construct {
-  constructor(scope: Construct, id: string, props: any) {
+  constructor(scope: Construct, id: string, _props: any) {
     super(scope, id);
     const dynamoTable = new Table(this, 'items', {
       partitionKey: {
-        name: 'itemId',
+        name: tablePrimaryKey,
         type: AttributeType.STRING
       },
       tableName: 'items',
@@ -33,7 +33,7 @@ export class ItemsApi extends Construct {
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
       environment: {
-        PRIMARY_KEY: 'itemId',
+        PRIMARY_KEY: tablePrimaryKey,
         TABLE_NAME: dynamoTable.tableName,
       },
       runtime: Runtime.NODEJS_22_X,
@@ -57,12 +57,9 @@ export class ItemsApi extends Construct {
     const createOneIntegration = new LambdaIntegration(createOneLambda);
     const getOneIntegration = new LambdaIntegration(getOneLambda);
 
-
     // Create an API Gateway resource for each of the CRUD operations
     const api = new RestApi(this, 'ItemsApi', {
       restApiName: 'Items Service'
-      // In case you want to manage binary types, uncomment the following
-      // binaryMediaTypes: ["*/*"],
     });
 
     const items = api.root.addResource('items');
@@ -72,37 +69,33 @@ export class ItemsApi extends Construct {
     const singleItem = items.addResource('{id}');
     singleItem.addMethod('GET', getOneIntegration);
     addCorsOptions(singleItem);
-
-
-    function addCorsOptions(apiResource: IResource) {
-      apiResource.addMethod('OPTIONS', new MockIntegration({
-        // In case you want to use binary media types, uncomment the following line
-        // contentHandling: ContentHandling.CONVERT_TO_TEXT,
-        integrationResponses: [{
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-            'method.response.header.Access-Control-Allow-Origin': "'*'",
-            'method.response.header.Access-Control-Allow-Credentials': "'false'",
-            'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,GET,PUT,POST,DELETE'",
-          },
-        }],
-        // In case you want to use binary media types, comment out the following line
-        passthroughBehavior: PassthroughBehavior.NEVER,
-        requestTemplates: {
-          "application/json": "{\"statusCode\": 200}"
-        },
-      }), {
-        methodResponses: [{
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': true,
-            'method.response.header.Access-Control-Allow-Methods': true,
-            'method.response.header.Access-Control-Allow-Credentials': true,
-            'method.response.header.Access-Control-Allow-Origin': true,
-          },
-        }]
-      })
-    }
   }
+}
+
+function addCorsOptions(apiResource: IResource) {
+  apiResource.addMethod('OPTIONS', new MockIntegration({
+    integrationResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        'method.response.header.Access-Control-Allow-Origin': "'*'",
+        'method.response.header.Access-Control-Allow-Credentials': "'false'",
+        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,GET,PUT,POST,DELETE'",
+      },
+    }],
+    passthroughBehavior: PassthroughBehavior.NEVER,
+    requestTemplates: {
+      "application/json": "{\"statusCode\": 200}"
+    },
+  }), {
+    methodResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Methods': true,
+        'method.response.header.Access-Control-Allow-Credentials': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+      },
+    }]
+  })
 }

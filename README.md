@@ -715,8 +715,11 @@ We will also have to install our dependencies for the two Lambdas, run the follo
 
 ```bash
 npm install @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb
-npm install
 ```
+
+The Lambda functions contain unit tests, so we need to slightly modify the `jest.config.js`.
+Open up the `app/jest.config.js` and change line 3 `roots: ['<rootDir>/test'],` to `roots: ['<rootDir>'],`.
+This changes from which directory our test runner [Jest](https://jestjs.io/) starts to look for files to test.
 
 ItemsApi in `items-api.ts` is a Construct with a Rest API (API GW) that calls a Lambda which saves an item to a DynamoDB.
 We also have an endpoint for reading one item with its itemId.
