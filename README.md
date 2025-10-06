@@ -234,7 +234,7 @@ First, Get and Copy the Topic ARN:
 npm run aws-sns-list-topics
 ```
 
-Then Send a message to the topic:
+Then Send a message to the topic. Replace <TOPIC_ARN> with the one you just copied.
 ```bash
 # Execute as a single command
 aws --endpoint-url=http://localhost:4566 --region=eu-north-1 \
@@ -531,7 +531,7 @@ Beyond this, it's anybody's game. AWS has some [instructions for large-scale pro
 https://docs.aws.amazon.com/prescriptive-guidance/latest/best-practices-cdk-typescript-iac/organizing-code-best-practices.html
 ), but that's really not helpful here.
 
-Our advise is to organise it in the way that makes most sense to you and your team.
+Our advice is to organise it in the way that makes most sense to you and your team.
 
 For the purposes of this demo workshop, though, let's organise our code around the core concepts of CDK.
 
@@ -554,12 +554,13 @@ We will teach you the AWS best practices, because they seem reasonable:
 > API Gateway, Lambda functions, or Amazon RDS tables) should be composed into a single high-level Construct.
 > Then that Construct should be instantiated in one or more Stacks for deployment.
 
-But be warned! In the wild, it is more common that the example scenario would have an S3BucketStack, APIGWStack,
-LambdaStack(s) and RDSTableStacks. We've even seen Stacks for individual read-write permissions. This is not wrong,
-there are good reasons for doing this, however, it is not considered best practise.
+But be warned! 
 
-Don't worry about "high-level" or "low-level" or "L1/L2/L3" Constructs for now. Our Construct can be an entire
-application or a single Resource.
+In the wild, it is more common that the example scenario would have an S3BucketStack, APIGWStack,
+LambdaStack(s) and RDSTableStacks. We've even seen Stacks for individual read-write permissions. 
+Although this is not according to AWS best practises, there are often be good reasons for doing this.
+
+Here we will stick to the best practices approach.
 
 ## Exercise 6.5: Destroy the current deployment
 
@@ -574,9 +575,7 @@ cdklocal destroy --force
 ```
 
 BTW, changes in Logical IDs are precisely the kind of thing why you would want to always make a `git commit` after a
-successful deployment! Cloud people call it `git-ops`, we developers just call it `git`.
-
-For this workshop, though, let's not worry about it.
+successful deployment! Cloud people call it `GitOps`, we developers just call it `git`.
 
 > **NOTE:**  
 > If your infrastructure gets too stuck, and you can't destroy it with CDK anymore, simply terminate LocalStack  
