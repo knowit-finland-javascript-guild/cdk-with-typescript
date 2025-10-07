@@ -785,9 +785,22 @@ We will also have to install our dependencies for the two Lambdas, run the follo
 npm install @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb
 ```
 
+### Enable Lambda unit tests for jest
+
 The Lambda functions contain unit tests, so we need to slightly modify the `jest.config.js`.
-Open up the `app/jest.config.js` and change line 3 `roots: ['<rootDir>/test'],` to `roots: ['<rootDir>'],`.
+
+- Open up the `app/jest.config.js` 
+- Change line 3 (`roots: ['<rootDir>/test'],`) to `roots: ['<rootDir>'],`
+
 This changes from which directory our test runner [Jest](https://jestjs.io/) starts to look for files to test.
+
+Run the tests, and verify that the amount of test suites has increased from 2 to 5.
+
+```bash
+npm test
+```
+
+### Create a Stack for deploying the ItemsApi Construct
 
 ItemsApi in `items-api.ts` is a Construct with a Rest API (API GW) that calls a Lambda which saves an item to a DynamoDB.
 We also have an endpoint for reading one item with its itemId.
@@ -833,7 +846,10 @@ new ItemsApiStack(app, 'ItemsApiStack', {
 });
 ```
 
-We don't need to tear down `AppStack`, because now we are deploying a totally new stack. However, now we do have to start specifying which Stack we are deploying.
+### Deploy ItemsApiStack
+
+We don't need to tear down `AppStack`, because now we are deploying a totally new stack. 
+However, now we do have to start specifying which Stack we are deploying.
 
 Deploy ItemsApiStack with:
 
