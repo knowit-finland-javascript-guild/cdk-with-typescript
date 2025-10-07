@@ -761,15 +761,23 @@ At the root of this repository, you will find the `./resources` directory.
 
 Copy the contents of `./resources/items-api` into a new directory `./app/lib/constructs/items-api`
 
-The directory `./app/lib/constructs/items-api` should now look like this:
+The directory `lib/constructs/items-api` should now look like this:
 
 ```bash
-./app/lib/constructs/items-api
+lib/constructs/items-api
+├── constants.ts
 ├── items-api.ts
 └── lambda-handler
     ├── create.ts
-    └── get-one.ts
+    ├── dbClient.ts
+    ├── get-one.ts
+    ├── Item.ts
+    └── test
+        ├── create.test.ts
+        ├── get-one.test.ts
+        └── item.test.ts
 ```
+(Don't worry if there are some .d.ts or .js files in the mix)
 
 We will also have to install our dependencies for the two Lambdas, run the following commands in the cdk root `app` directory.
 
