@@ -794,7 +794,7 @@ The Lambda functions contain unit tests, so we need to slightly modify the `jest
 
 This changes from which directory our test runner [Jest](https://jestjs.io/) starts to look for files to test.
 
-Run the tests, and verify that the amount of test suites has increased from 2 to 5.
+Run the tests, and verify that the amount of test suites is now more than 2 (should be 5 or so).
 
 ```bash
 npm test
@@ -897,10 +897,10 @@ The [CDK Stage](https://docs.aws.amazon.com/cdk/v2/guide/stages.html) represents
 that are configured to deploy together. Use stages to deploy the same grouping of stacks to multiple environments,
 such as development, testing, and production.
 
-Let's pretend that `AppStack` is only used in Dev -- Prod has no need for it. This would be a good case for 
+Let's pretend that `AppStack` is only used in Dev, and Prod has no need for it. This would be a good case for 
 introducing two separate Stages: `DevStage` and `ProdStage`!
 
-Do the following
+Do the following:
 
 1. Destroy currently deployed Stacks with  
    `cdklocal destroy --all --force`
@@ -988,7 +988,7 @@ Now with multiple Stages and Stacks, when we want view a template, we have two o
 
 Now we have enough information for writing tests for the ItemsApi construct!
 
-Create the file `test/item-api.test.ts`
+Create the file `test/items-api.test.ts`
 
 As a starting point, put the following content into it:
 
@@ -996,20 +996,19 @@ As a starting point, put the following content into it:
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { ItemsApi } from '../lib/constructs/items-api/items-api';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 test('ItemsApi Construct Test', () => {
   // WHEN
   const stack = new cdk.Stack();
-  new ItemsApi(stack, 'MyTestItemaApi', {});
+  new ItemsApi(stack, 'MyTestItemsApi', {});
 
   // THEN
 
   // CDK Synthesized into a CloudFormation Template
   const template = Template.fromStack(stack);
-  
+
   template.resourceCountIs('AWS::Lambda::Function', 2);
-  
+
 
 });
 
@@ -1052,10 +1051,10 @@ Add whichever endpoints you want to ItemsApi! Some reasonable candidates might b
 You will find plenty of examples of DynamoDB library calls in AWS Developer Guide, for example in
 ["Actions"](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/service_code_examples_actions.html).
 
->**Sidenote:**  
+> **Sidenote:**  
 > It can be confusing that we are using both the [DynamoDBDocument library](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-lib-dynamodb/Class/DynamoDBDocument/)
-and [DynamoDBClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/). 
-DynamoDBDocument simply does some mapping so that we can work with regular JS objects instead of the horrible DynamoDB format.
+> and [DynamoDBClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/).
+> DynamoDBDocument simply does some mapping so that we can work with regular JS objects instead of the horrible DynamoDB format.
 
 Well done on completing this bonus exercise!
 
