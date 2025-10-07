@@ -863,10 +863,10 @@ Well done!
 ## Exercise 11: Test ItemsApi
 
 ItemsApiStack should have outputted the ItemsApi Endpoint URL.
-**Remember to append the path "`items`" to the end of it when testing!**
+**Remember to append the path `/items` to the end of the URL when testing!**
 
-If you don't find it, run `npm run aws-apigateway-get-rest-apis`, get the ApiGateway ID of ItemsApi, and replace the `<ApiGWId>`
-in the following test requests.
+If you don't find the endpoint URL, run `npm run aws-apigateway-get-rest-apis`, copy the ApiGateway ID of ItemsApi, 
+and replace the `<ApiGWId>` in the test requests.
 
 ```bash
 # Test requests:
@@ -907,11 +907,10 @@ Do the following
 2. Create the class `DevStage` (that extends cdk.Stage) into a new file: `lib/stages/dev-stage.ts`
 3. Create the class `ProdStage` (that extends cdk.Stage) into a new file: `lib/stages/prod-stage.ts`
 4. In the DevStage constructor,
-  - create AppStack with the same logical id `AppStack`
-  - create ItemsApiStack with the logical id `ItemsApiStack`
+    - create AppStack with the same logical id `AppStack`
+    - create ItemsApiStack with the logical id `ItemsApiStack`
 5. In the ProdStage constructor,
-- ItemsApiStack with the logical id `ItemsApiStack`
-
+    - ItemsApiStack with the logical id `ItemsApiStack`
 
 Replace the contents of `bin/app.ts` with the following code:
 
