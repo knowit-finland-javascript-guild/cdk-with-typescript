@@ -1056,6 +1056,12 @@ You will find plenty of examples of DynamoDB library calls in AWS Developer Guid
 > and [DynamoDBClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/).
 > DynamoDBDocument simply does some mapping so that we can work with regular JS objects instead of the horrible DynamoDB format.
 
+When you are done, make sure to fix the tests and see that they pass:
+
+```bash
+npm test
+```
+
 Well done on completing this bonus exercise!
 
 # After the exercises
