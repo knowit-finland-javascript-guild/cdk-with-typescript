@@ -227,7 +227,7 @@ the message for us until we read it (asynchronous processing).
 
 Right, now let's get on with it!
 
-## Exercise 2.6:
+## Exercise 2.5: Test that SNS and SQS work together
 
 First, Get and Copy the Topic ARN:
 ```bash
