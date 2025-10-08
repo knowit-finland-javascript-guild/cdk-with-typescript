@@ -346,7 +346,7 @@ npm run aws-sqs-list-queues
 
 Well done!
 
-## Excercise 6: Deploy a Hello World service with Lambda function and Api Gateway
+## Exercise 6: Deploy a Hello World service with Lambda function and Api Gateway
 
 [AWS Lambda functions](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) are great, let's deploy one!
 
